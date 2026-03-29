@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scan History — TextScan</title>
+  <meta name="description" content="Browse your recent TextScan text extractions. Revisit, copy, and manage all past scans — saved privately in your browser."/>
+  <meta name="keywords" content="OCR history, scan history, image to text history, TextScan, text extraction"/>
+  <meta name="author" content="GiftedTech"/>
+  <meta name="robots" content="noindex, follow"/>
+  <link rel="canonical" href="https://ocr.giftedtech.co.ke/history"/>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="shortcut icon" href="/assets/favicon.svg"/>
+  <link rel="apple-touch-icon" href="/assets/favicon.svg"/>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="TextScan"/>
+  <meta property="og:title" content="Scan History — TextScan"/>
+  <meta property="og:description" content="Browse your recent text extractions. Revisit, copy, and manage all past scans — saved privately in your browser."/>
+  <meta property="og:image" content="https://ocr.giftedtech.co.ke/assets/og.svg"/>
+  <meta property="og:url" content="https://ocr.giftedtech.co.ke/history"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Scan History — TextScan"/>
+  <meta name="twitter:description" content="Browse your recent text extractions. Revisit, copy, and manage all past scans."/>
+  <meta name="twitter:image" content="https://ocr.giftedtech.co.ke/assets/og.svg"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    /* ── Theme tokens ── */
+    :root {
+      --blue: #2563eb; --blue-h: #1d4ed8; --blue-50: #eff6ff; --blue-100: #dbeafe;
+      --green: #16a34a; --red: #ef4444; --r: 12px;
+      --pg: #f1f5f9; --pc: #ffffff; --pc2: #f8fafc; --phov: #f1f5f9;
+      --bd: #e2e8f0; --bd2: #cbd5e1;
+      --t1: #0f172a; --t2: #334155; --t3: #64748b; --tm: #94a3b8;
+      --shw: 0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+      --shwm: 0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+      --shwl: 0 16px 48px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.05);
+      --hbg: rgba(255,255,255,.88); --ov: rgba(0,0,0,.4);
+    }
+    [data-theme="dark"] {
+      --pg: #0f172a; --pc: #1e293b; --pc2: #0f172a; --phov: #334155;
+      --bd: #334155; --bd2: #475569;
+      --t1: #f1f5f9; --t2: #e2e8f0; --t3: #94a3b8; --tm: #64748b;
+      --shw: 0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+      --shwm: 0 4px 16px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.2);
+      --shwl: 0 16px 48px rgba(0,0,0,.55),0 4px 12px rgba(0,0,0,.3);
+      --hbg: rgba(15,23,42,.92); --blue-50: rgba(37,99,235,.12);
+      --blue-100: rgba(37,99,235,.22); --ov: rgba(0,0,0,.6);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--pg); color: var(--t1);
+      min-height: 100vh; display: flex; flex-direction: column;
+      overflow-x: hidden; transition: background .3s, color .3s;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 4px; }
+
+    /* ── PAGE LOADER ── */
+    #page-loader {
+      position: fixed; inset: 0; background: var(--pc);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity .3s;
+    }
+    .ld-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .ld-icon {
+      width: 54px; height: 54px; background: var(--blue); border-radius: 15px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.45rem; color: #fff; box-shadow: 0 8px 28px rgba(37,99,235,.35);
+      animation: ldPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes ldPulse {
+      0%,100% { transform: scale(1); box-shadow: 0 8px 28px rgba(37,99,235,.35); }
+      50% { transform: scale(1.07); box-shadow: 0 12px 36px rgba(37,99,235,.5); }
+    }
+    .ld-spin { width: 24px; height: 24px; border: 2.5px solid var(--bd); border-top-color: var(--blue); border-radius: 50%; animation: spin .75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; height: 64px;
+      background: var(--hbg); backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      border-bottom: 1px solid var(--bd); border-radius: 0 0 18px 18px;
+      z-index: 300; display: flex; align-items: center; padding: 0 20px; gap: 10px;
+      transition: background .3s, border-color .3s;
+    }
+    .hamburger {
+      width: 38px; height: 38px; border: 1px solid var(--bd);
+      background: none; border-radius: 9px; cursor: pointer;
+      align-items: center; justify-content: center;
+      color: var(--t3); font-size: 1rem; transition: all .2s; flex-shrink: 0; display: none;
+    }
+    .hamburger:hover { background: var(--phov); color: var(--t1); }
+    @media (max-width: 768px) { .hamburger { display: flex; } }
+    .header-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.125rem; font-weight: 800; color: var(--t1);
+      text-decoration: none; flex-shrink: 0; letter-spacing: -.02em;
+    }
+    .header-logo-icon {
+      width: 34px; height: 34px; background: var(--blue); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: .875rem; box-shadow: 0 2px 10px rgba(37,99,235,.28); transition: transform .2s;
+    }
+    .header-logo:hover .header-logo-icon { transform: rotate(-8deg) scale(1.05); }
+    .header-logo span { color: var(--blue); }
+    nav.desktop-nav { display: flex; align-items: center; gap: 1px; margin-left: 14px; }
+    nav.desktop-nav a {
+      padding: 7px 13px; border-radius: 8px; font-size: .875rem; font-weight: 500;
+      color: var(--t3); text-decoration: none; transition: color .15s, background .15s; white-space: nowrap;
+    }
+    nav.desktop-nav a:hover { color: var(--blue); background: var(--blue-50); }
+    nav.desktop-nav a.active { color: var(--blue); background: var(--blue-50); }
+    @media (max-width: 768px) { nav.desktop-nav { display: none; } }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px; border: 1px solid var(--bd);
+      background: none; border-radius: 9px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--t3); font-size: .875rem; transition: all .2s;
+    }
+    .icon-btn:hover { background: var(--phov); color: var(--t1); border-color: var(--bd2); }
+
+    /* ── MOBILE MENU ── */
+    #mob-overlay { display: none; position: fixed; inset: 0; background: var(--ov); z-index: 198; animation: fadeIn .2s ease; }
+    #mob-overlay.open { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    #mob-menu {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 199;
+      padding-top: 64px; background: var(--pc);
+      border-bottom: 1px solid var(--bd); border-radius: 0 0 22px 22px;
+      box-shadow: var(--shwl); transform: translateY(-100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1); max-height: 88vh; overflow-y: auto;
+    }
+    #mob-menu.open { transform: translateY(0); }
+    .mob-inner { padding: 14px 14px 20px; }
+    .mob-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--bd); }
+    .mob-logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 1rem; color: var(--t1); text-decoration: none; }
+    .mob-logo-icon { width: 30px; height: 30px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: .8rem; }
+    .mob-close { width: 30px; height: 30px; border: 1px solid var(--bd); background: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--tm); font-size: .85rem; transition: all .15s; }
+    .mob-close:hover { background: var(--phov); color: var(--t1); }
+    .mob-nav { display: flex; flex-direction: column; gap: 2px; }
+    .mob-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; text-decoration: none; font-size: .9375rem; font-weight: 500; color: var(--t2); transition: all .15s; }
+    .mob-nav a i { width: 17px; text-align: center; color: var(--tm); transition: color .15s; }
+    .mob-nav a:hover, .mob-nav a.active { background: var(--blue-50); color: var(--blue); }
+    .mob-nav a:hover i, .mob-nav a.active i { color: var(--blue); }
+
+    /* ── MAIN ── */
+    main { flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 96px 20px 56px; }
+
+    /* ── PAGE HEADER ── */
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 14px; flex-wrap: wrap; }
+    .page-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--blue-50); border: 1px solid var(--blue-100); color: var(--blue);
+      padding: 5px 13px; border-radius: 20px; font-size: .73rem; font-weight: 700;
+      letter-spacing: .3px; margin-bottom: 10px;
+    }
+    .page-title { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 900; color: var(--t1); letter-spacing: -.03em; margin-bottom: 4px; }
+    .page-sub { font-size: .9rem; color: var(--t3); }
+    .page-head-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 10px; border: none;
+      font-size: .875rem; font-weight: 600; cursor: pointer;
+      transition: all .2s; font-family: inherit; white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+    .btn-primary:hover { background: var(--blue-h); transform: translateY(-1px); }
+    .btn-ghost { background: var(--pc); border: 1px solid var(--bd); color: var(--t3); box-shadow: var(--shw); }
+    .btn-ghost:hover { border-color: var(--bd2); color: var(--t1); }
+    .btn-danger { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25); color: var(--red); }
+    .btn-danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+    /* ── STATS BAR ── */
+    .stats-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--pc); border: 1px solid var(--bd);
+      padding: 7px 14px; border-radius: 20px;
+      font-size: .8rem; font-weight: 600; color: var(--t2); box-shadow: var(--shw);
+    }
+    .stat-chip i { color: var(--blue); font-size: .78rem; }
+
+    /* ── SESSION CARDS ── */
+    .session-card {
+      background: var(--pc); border: 1px solid var(--bd);
+      border-radius: var(--r); margin-bottom: 14px; overflow: hidden;
+      box-shadow: var(--shw); transition: box-shadow .2s;
+      animation: cardIn .35s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .session-card:hover { box-shadow: var(--shwm); }
+
+    .session-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; cursor: pointer; user-select: none;
+      background: var(--pc2); gap: 12px; flex-wrap: wrap;
+      transition: background .15s;
+    }
+    .session-header:hover { background: var(--phov); }
+    .session-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+    .session-icon {
+      width: 38px; height: 38px; background: var(--blue-50); border: 1px solid var(--blue-100);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      color: var(--blue); font-size: .9rem; flex-shrink: 0;
+    }
+    .session-meta { min-width: 0; }
+    .session-date { font-size: .8rem; font-weight: 700; color: var(--t1); margin-bottom: 2px; }
+    .session-info { font-size: .75rem; color: var(--tm); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .session-info span { display: inline-flex; align-items: center; gap: 4px; }
+    .session-right { display: flex; align-items: center; gap: 8px; }
+    .badge-count {
+      background: var(--blue-50); color: var(--blue); border: 1px solid var(--blue-100);
+      padding: 2px 10px; border-radius: 20px; font-size: .7rem; font-weight: 700;
+    }
+    .chevron { color: var(--tm); font-size: .8rem; transition: transform .25s; }
+    .session-card.open .chevron { transform: rotate(180deg); }
+    .session-body { display: none; border-top: 1px solid var(--bd); }
+    .session-card.open .session-body { display: block; }
+
+    .session-actions {
+      display: flex; gap: 8px; padding: 12px 16px;
+      border-bottom: 1px solid var(--bd); background: var(--pc2);
+      flex-wrap: wrap; align-items: center;
+    }
+    .session-actions-label { font-size: .78rem; color: var(--tm); font-weight: 500; margin-right: 4px; }
+
+    /* ── RESULT ROW ── */
+    .result-row { border-bottom: 1px solid var(--bd); }
+    .result-row:last-child { border-bottom: none; }
+    .result-row-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; gap: 10px; flex-wrap: wrap;
+    }
+    .result-row-name { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; color: var(--t2); min-width: 0; }
+    .result-row-name i { color: var(--blue); flex-shrink: 0; }
+    .result-row-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+    .result-row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .r-badge { font-size: .67rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+    .r-ok { background: rgba(22,163,74,.1); color: #16a34a; border: 1px solid rgba(22,163,74,.2); }
+    .r-fail { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
+    .result-text-box {
+      margin: 0 16px 14px; padding: 12px 14px;
+      background: var(--pg); border: 1px solid var(--bd);
+      border-radius: 8px; font-size: .85rem; line-height: 1.8;
+      color: var(--t2); white-space: pre-wrap; max-height: 220px; overflow-y: auto;
+    }
+    .result-text-box.empty { color: var(--tm); font-style: italic; }
+    .result-text-box::-webkit-scrollbar { width: 4px; }
+    .result-text-box::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 4px; }
+
+    .copy-mini {
+      display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px;
+      border-radius: 7px; border: 1px solid var(--bd); background: var(--pc);
+      color: var(--tm); font-size: .75rem; font-weight: 600; cursor: pointer;
+      transition: all .15s; font-family: inherit;
+    }
+    .copy-mini:hover { border-color: var(--blue); color: var(--blue); }
+    .copy-mini.copied { border-color: var(--green); color: var(--green); }
+    .del-mini {
+      display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px;
+      border-radius: 7px; border: 1px solid transparent; background: transparent;
+      color: var(--tm); font-size: .75rem; font-weight: 600; cursor: pointer;
+      transition: all .15s; font-family: inherit;
+    }
+    .del-mini:hover { border-color: rgba(239,68,68,.3); color: var(--red); background: rgba(239,68,68,.06); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 72px 24px;
+      background: var(--pc); border: 2px dashed var(--bd);
+      border-radius: var(--r); box-shadow: var(--shw);
+    }
+    .empty-icon {
+      width: 72px; height: 72px; background: var(--blue-50); border: 1px solid var(--blue-100);
+      border-radius: 20px; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 1.8rem; color: var(--blue);
+    }
+    .empty-title { font-size: 1.1rem; font-weight: 800; color: var(--t1); margin-bottom: 8px; }
+    .empty-sub { font-size: .9rem; color: var(--t3); margin-bottom: 24px; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--t1); color: var(--pc);
+      padding: 11px 18px; border-radius: 10px; font-size: .875rem;
+      font-weight: 600; display: flex; align-items: center; gap: 9px;
+      opacity: 0; transform: translateY(10px) scale(.96);
+      transition: all .25s cubic-bezier(.16,1,.3,1);
+      pointer-events: none; z-index: 9000; box-shadow: var(--shwl);
+    }
+    #toast.show { opacity: 1; transform: translateY(0) scale(1); }
+    #toast i { color: #4ade80; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--bd); background: var(--pc);
+      border-radius: 18px 18px 0 0; padding: 24px; text-align: center;
+      transition: background .3s, border-color .3s;
+    }
+    .ft { font-size: .82rem; color: var(--tm); line-height: 1.7; }
+    .ft a { color: var(--blue); text-decoration: none; font-weight: 500; }
+    .ft a:hover { text-decoration: underline; }
+    .heart { display: inline-block; color: var(--red); animation: hb 1.3s ease-in-out infinite; }
+    @keyframes hb { 0%,100% { transform: scale(1); } 60% { transform: scale(1.28); } }
+
+    /* ── CONFIRM OVERLAY ── */
+    #confirm-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: var(--ov); align-items: center; justify-content: center;
+      padding: 20px; backdrop-filter: blur(6px);
+    }
+    #confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: var(--pc); border: 1px solid var(--bd); border-radius: 18px;
+      padding: 28px 24px; max-width: 380px; width: 100%;
+      box-shadow: var(--shwl); text-align: center;
+      animation: cardIn .22s cubic-bezier(.16,1,.3,1);
+    }
+    .confirm-icon { font-size: 2rem; color: var(--red); margin-bottom: 14px; }
+    .confirm-title { font-weight: 800; font-size: 1.05rem; color: var(--t1); margin-bottom: 8px; }
+    .confirm-sub { font-size: .875rem; color: var(--t3); margin-bottom: 22px; line-height: 1.6; }
+    .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<div id="page-loader">
+  <div class="ld-inner">
+    <div class="ld-icon"><i class="fas fa-clock-rotate-left"></i></div>
+    <div class="ld-spin"></div>
+  </div>
+</div>
+
+<div id="mob-overlay" onclick="closeMob()"></div>
+
+<div id="mob-menu">
+  <div class="mob-inner">
+    <div class="mob-top">
+      <a class="mob-logo" href="/">
+        <div class="mob-logo-icon"><i class="fas fa-file-image"></i></div>
+        Text<span style="color:var(--blue)">Scan</span>
+      </a>
+      <button class="mob-close icon-btn" onclick="closeMob()"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="mob-nav">
+      <a href="/" onclick="closeMob()"><i class="fas fa-house"></i> Home</a>
+      <a href="/#how-it-works" onclick="closeMob()"><i class="fas fa-wand-magic-sparkles"></i> How It Works</a>
+      <a href="/history" class="active" onclick="closeMob()"><i class="fas fa-clock-rotate-left"></i> History</a>
+      <a href="https://me.giftedtech.co.ke" target="_blank"><i class="fas fa-globe"></i> GiftedTech</a>
+      <a href="mailto:maurice@giftedtech.co.ke"><i class="fas fa-envelope"></i> Contact</a>
+    </nav>
+  </div>
+</div>
+
+<header>
+  <button class="hamburger" onclick="openMob()" aria-label="Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <a class="header-logo" href="/">
+    <div class="header-logo-icon"><i class="fas fa-file-image"></i></div>
+    Text<span>Scan</span>
+  </a>
+  <nav class="desktop-nav">
+    <a href="/">Home</a>
+    <a href="/#how-it-works">How It Works</a>
+    <a href="/history" class="active">History</a>
+    <a href="https://me.giftedtech.co.ke" target="_blank">GiftedTech</a>
+  </nav>
+  <div class="header-right">
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+      <i id="themeIcon" class="fas fa-moon"></i>
+    </button>
+    <a class="icon-btn" href="https://github.com/mauricegift/text-scan" target="_blank" title="View on GitHub" style="text-decoration:none;width:auto;padding:0 12px;gap:6px;font-size:.78rem;font-weight:700;color:var(--t2);">
+      <i class="fab fa-github" style="font-size:1rem;"></i>
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <div class="page-head-left">
+      <div class="page-badge"><i class="fas fa-clock-rotate-left"></i> Scan History</div>
+      <h1 class="page-title">Recent Scans</h1>
+      <p class="page-sub">Your saved text extractions — stored locally in your browser.</p>
+    </div>
+    <div class="page-head-right">
+      <a href="/" class="btn btn-primary"><i class="fas fa-plus"></i> New Scan</a>
+      <button class="btn btn-danger" id="clearAllBtn" onclick="confirmClearAll()" style="display:none;">
+        <i class="fas fa-trash"></i> Clear All
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar" style="display:none;">
+    <div class="stat-chip"><i class="fas fa-layer-group"></i> <span id="stat-sessions">0</span> sessions</div>
+    <div class="stat-chip"><i class="fas fa-images"></i> <span id="stat-images">0</span> images</div>
+    <div class="stat-chip"><i class="fas fa-font"></i> <span id="stat-chars">0</span> characters</div>
+  </div>
+
+  <div id="history-container"></div>
+</main>
+
+<footer>
+  <p class="ft">
+    &copy; <span id="yr"></span>
+    <a href="https://me.giftedtech.co.ke" target="_blank">GiftedTech</a>
+    &nbsp;&middot;&nbsp; Made with <span class="heart">&#9829;</span> in Kenya
+  </p>
+</footer>
+
+<div id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="fas fa-triangle-exclamation"></i></div>
+    <div class="confirm-title" id="confirm-title">Clear all history?</div>
+    <div class="confirm-sub" id="confirm-sub">This will permanently delete all saved scans from your browser. This cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="executeConfirm()"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><i class="fas fa-check"></i> <span id="toast-msg">Copied!</span></div>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  window.addEventListener('load', () => {
+    const l = document.getElementById('page-loader');
+    l.style.opacity = '0'; setTimeout(() => l.remove(), 320);
+  });
+
+  const htmlEl = document.documentElement;
+  const themeIcon = document.getElementById('themeIcon');
+  function applyTheme(t) {
+    htmlEl.setAttribute('data-theme', t);
+    themeIcon.className = t === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    localStorage.setItem('ts-theme', t);
+  }
+  function toggleTheme() { applyTheme(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+  applyTheme(localStorage.getItem('ts-theme') || 'light');
+
+  let scrollY = 0;
+  function openMob() {
+    scrollY = window.scrollY;
+    document.getElementById('mob-menu').classList.add('open');
+    document.getElementById('mob-overlay').classList.add('open');
+    document.body.style.cssText = `overflow:hidden;position:fixed;top:-${scrollY}px;left:0;right:0;`;
+  }
+  function closeMob() {
+    document.getElementById('mob-menu').classList.remove('open');
+    document.getElementById('mob-overlay').classList.remove('open');
+    document.body.style.cssText = '';
+    window.scrollTo(0, scrollY);
+  }
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem('ts-history') || '[]'); } catch (_) { return []; }
+  }
+  function saveHistory(hist) {
+    try { localStorage.setItem('ts-history', JSON.stringify(hist)); } catch (_) {}
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const date = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return `${date} &middot; ${time}`;
+  }
+  function relativeTime(iso) {
+    const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (secs < 60)  return 'Just now';
+    if (secs < 3600)  return Math.floor(secs / 60) + 'm ago';
+    if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
+    if (secs < 604800) return Math.floor(secs / 86400) + 'd ago';
+    return Math.floor(secs / 604800) + 'w ago';
+  }
+
+  function render() {
+    const hist = loadHistory();
+    const container = document.getElementById('history-container');
+    const statsBar  = document.getElementById('stats-bar');
+    const clearBtn  = document.getElementById('clearAllBtn');
+
+    if (!hist.length) {
+      statsBar.style.display = 'none';
+      clearBtn.style.display = 'none';
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-clock-rotate-left"></i></div>
+          <div class="empty-title">No scan history yet</div>
+          <div class="empty-sub">Run your first text extraction and it will appear here automatically.</div>
+          <a href="/" class="btn btn-primary"><i class="fas fa-upload"></i> Start Extracting</a>
+        </div>`;
+      return;
+    }
+
+    statsBar.style.display = 'flex';
+    clearBtn.style.display = 'inline-flex';
+    const totalImages = hist.reduce((s, e) => s + e.results.length, 0);
+    const totalChars  = hist.reduce((s, e) => s + e.results.reduce((ss, r) => ss + (r.text || '').length, 0), 0);
+    document.getElementById('stat-sessions').textContent = hist.length;
+    document.getElementById('stat-images').textContent   = totalImages;
+    document.getElementById('stat-chars').textContent    = totalChars.toLocaleString();
+
+    container.innerHTML = '';
+    hist.forEach((entry, idx) => {
+      const successCount = entry.results.filter(r => r.success && r.text).length;
+      const totalR = entry.results.length;
+      const charCount = entry.results.reduce((s, r) => s + (r.text || '').length, 0);
+
+      const card = document.createElement('div');
+      card.className = 'session-card';
+      card.style.animationDelay = (idx * 45) + 'ms';
+      card.dataset.id = entry.id;
+
+      const header = document.createElement('div');
+      header.className = 'session-header';
+      header.innerHTML = `
+        <div class="session-left">
+          <div class="session-icon"><i class="fas fa-file-lines"></i></div>
+          <div class="session-meta">
+            <div class="session-date">${formatDate(entry.date)}</div>
+            <div class="session-info">
+              <span><i class="fas fa-images"></i> ${totalR} image${totalR !== 1 ? 's' : ''}</span>
+              <span><i class="fas fa-check-circle" style="color:var(--green)"></i> ${successCount} extracted</span>
+              <span><i class="fas fa-font"></i> ${charCount.toLocaleString()} chars</span>
+              <span style="color:var(--blue);font-weight:700;">${relativeTime(entry.date)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="session-right">
+          <span class="badge-count">${totalR}</span>
+          <i class="fas fa-chevron-down chevron"></i>
+        </div>`;
+      header.addEventListener('click', () => card.classList.toggle('open'));
+
+      const body = document.createElement('div');
+      body.className = 'session-body';
+
+      const actionsRow = document.createElement('div');
+      actionsRow.className = 'session-actions';
+      actionsRow.innerHTML = `<span class="session-actions-label">Session:</span>`;
+
+      const copyAllBtn = document.createElement('button');
+      copyAllBtn.className = 'copy-mini';
+      copyAllBtn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
+      copyAllBtn.addEventListener('click', () => copySession(entry, copyAllBtn));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del-mini';
+      delBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+      delBtn.addEventListener('click', () => confirmDeleteSession(entry.id));
+
+      actionsRow.appendChild(copyAllBtn);
+      actionsRow.appendChild(delBtn);
+      body.appendChild(actionsRow);
+
+      entry.results.forEach((r, ri) => {
+        const hasText = r.success && r.text;
+        const row = document.createElement('div');
+        row.className = 'result-row';
+        row.innerHTML = `
+          <div class="result-row-header">
+            <div class="result-row-name">
+              <i class="fas fa-image"></i>
+              <span title="${esc(r.name)}">${esc(r.name)}</span>
+              <span class="r-badge ${hasText ? 'r-ok' : 'r-fail'}">${hasText ? 'Extracted' : 'No text'}</span>
+            </div>
+            <div class="result-row-actions">
+              ${hasText ? `<button class="copy-mini"><i class="fas fa-copy"></i> Copy</button>` : ''}
+            </div>
+          </div>
+          <div class="result-text-box ${!hasText ? 'empty' : ''}">${hasText ? esc(r.text) : 'No text detected in this image.'}</div>`;
+        if (hasText) {
+          const copyBtn = row.querySelector('.copy-mini');
+          copyBtn.addEventListener('click', () => {
+            clip(r.text, () => {
+              copyBtn.classList.add('copied');
+              copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+              setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2500);
+            });
+          });
+        }
+        body.appendChild(row);
+      });
+
+      card.appendChild(header);
+      card.appendChild(body);
+      container.appendChild(card);
+    });
+  }
+
+  function copySession(entry, btn) {
+    const texts = entry.results.filter(r => r.success && r.text).map(r => `[${r.name}]\n${r.text}`).join('\n\n---\n\n');
+    if (!texts) { toast('No text in this session'); return; }
+    clip(texts, () => {
+      btn.classList.add('copied'); btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="fas fa-copy"></i> Copy All'; }, 2500);
+    });
+  }
+
+  let _confirmAction = null;
+  function confirmClearAll() {
+    document.getElementById('confirm-title').textContent = 'Clear all history?';
+    document.getElementById('confirm-sub').textContent = 'This will permanently delete all saved scans from your browser. This cannot be undone.';
+    _confirmAction = () => { saveHistory([]); render(); toast('History cleared'); };
+    document.getElementById('confirm-overlay').classList.add('open');
+  }
+  function confirmDeleteSession(id) {
+    document.getElementById('confirm-title').textContent = 'Delete this session?';
+    document.getElementById('confirm-sub').textContent = 'This scan session will be permanently removed from your history.';
+    _confirmAction = () => { saveHistory(loadHistory().filter(e => e.id !== id)); render(); toast('Session deleted'); };
+    document.getElementById('confirm-overlay').classList.add('open');
+  }
+  function closeConfirm() {
+    document.getElementById('confirm-overlay').classList.remove('open');
+    _confirmAction = null;
+  }
+  function executeConfirm() { if (_confirmAction) _confirmAction(); closeConfirm(); }
+  document.getElementById('confirm-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('confirm-overlay')) closeConfirm();
+  });
+
+  function clip(text, cb) {
+    toast('Copied to clipboard!');
+    if (navigator.clipboard?.writeText) { navigator.clipboard.writeText(text).then(cb).catch(() => clipFb(text, cb)); }
+    else clipFb(text, cb);
+  }
+  function clipFb(text, cb) {
+    const ta = Object.assign(document.createElement('textarea'), { value: text });
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); cb(); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show'); clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  render();
+</script>
+</body>
+</html>

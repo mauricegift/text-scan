@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eff6ff"/>
+      <stop offset="100%" style="stop-color:#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2563eb"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Decorative circles -->
+  <circle cx="1050" cy="80" r="180" fill="#2563eb" opacity="0.06"/>
+  <circle cx="150" cy="550" r="140" fill="#7c3aed" opacity="0.06"/>
+  <!-- Logo card -->
+  <rect x="80" y="220" width="80" height="80" rx="20" fill="#2563eb"/>
+  <text x="120" y="276" font-family="Arial,sans-serif" font-size="44" text-anchor="middle" fill="white">⬛</text>
+  <!-- App name -->
+  <text x="180" y="287" font-family="Arial,sans-serif" font-size="72" font-weight="900" fill="#0f172a" letter-spacing="-3">Text</text>
+  <text x="416" y="287" font-family="Arial,sans-serif" font-size="72" font-weight="900" fill="#2563eb" letter-spacing="-3">Scan</text>
+  <!-- Tagline -->
+  <text x="80" y="340" font-family="Arial,sans-serif" font-size="30" fill="#64748b">AI-Powered Image to Text Extractor</text>
+  <!-- Feature pills -->
+  <rect x="80" y="380" width="180" height="42" rx="21" fill="#2563eb" opacity="0.12"/>
+  <text x="170" y="407" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">100% Free</text>
+  <rect x="276" y="380" width="210" height="42" rx="21" fill="#2563eb" opacity="0.12"/>
+  <text x="381" y="407" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">No Sign-up</text>
+  <rect x="502" y="380" width="260" height="42" rx="21" fill="#2563eb" opacity="0.12"/>
+  <text x="632" y="407" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">Up to 20 Images</text>
+  <!-- URL -->
+  <text x="80" y="500" font-family="Arial,sans-serif" font-size="24" fill="#94a3b8" font-weight="500">ocr.giftedtech.co.ke</text>
+  <!-- Decorative right side -->
+  <rect x="860" y="140" width="260" height="340" rx="18" fill="white" opacity="0.7"/>
+  <rect x="880" y="170" width="110" height="90" rx="10" fill="#dbeafe"/>
+  <text x="935" y="225" font-family="Arial,sans-serif" font-size="36" text-anchor="middle">🖼</text>
+  <rect x="1000" y="170" width="100" height="90" rx="10" fill="#ede9fe"/>
+  <text x="1050" y="225" font-family="Arial,sans-serif" font-size="36" text-anchor="middle">📄</text>
+  <rect x="880" y="275" width="220" height="8" rx="4" fill="#e2e8f0"/>
+  <rect x="880" y="275" width="160" height="8" rx="4" fill="url(#accent)"/>
+  <rect x="880" y="295" width="220" height="6" rx="3" fill="#e2e8f0"/>
+  <rect x="880" y="315" width="220" height="6" rx="3" fill="#e2e8f0"/>
+  <rect x="880" y="335" width="180" height="6" rx="3" fill="#e2e8f0"/>
+  <rect x="880" y="380" width="220" height="40" rx="10" fill="#2563eb"/>
+  <text x="990" y="407" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle">Extract Text</text>
+</svg>

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TextScan — Free Image to Text Extractor</title>
+  <meta name="description" content="Extract text from any image instantly using Gemini Vision AI. Supports handwriting, printed text, screenshots and scanned documents. 100% free, no sign-up."/>
+  <meta name="keywords" content="OCR, image to text, text extractor, AI OCR, free OCR, Gemini Vision, extract text from image, handwriting recognition, screenshot to text"/>
+  <meta name="author" content="GiftedTech"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://ocr.giftedtech.co.ke"/>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="shortcut icon" href="/assets/favicon.svg"/>
+  <link rel="apple-touch-icon" href="/assets/favicon.svg"/>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="TextScan"/>
+  <meta property="og:title" content="TextScan — Free Image to Text Extractor"/>
+  <meta property="og:description" content="Extract text from any image instantly using Gemini Vision AI. Supports handwriting, printed text, screenshots and more. 100% free, no sign-up."/>
+  <meta property="og:image" content="https://ocr.giftedtech.co.ke/assets/og.svg"/>
+  <meta property="og:url" content="https://ocr.giftedtech.co.ke"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="TextScan — Free Image to Text Extractor"/>
+  <meta name="twitter:description" content="Extract text from any image instantly using Gemini Vision AI. 100% free, no sign-up required."/>
+  <meta name="twitter:image" content="https://ocr.giftedtech.co.ke/assets/og.svg"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"/>
+  <style>
+    /* ── Theme tokens ── */
+    :root {
+      --blue: #2563eb;
+      --blue-h: #1d4ed8;
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --green: #16a34a;
+      --red: #ef4444;
+      --r: 12px;
+
+      --pg:   #f1f5f9;
+      --pc:   #ffffff;
+      --pc2:  #f8fafc;
+      --phov: #f1f5f9;
+      --bd:   #e2e8f0;
+      --bd2:  #cbd5e1;
+      --t1:   #0f172a;
+      --t2:   #334155;
+      --t3:   #64748b;
+      --tm:   #94a3b8;
+      --shw:  0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+      --shwm: 0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+      --shwl: 0 16px 48px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.05);
+      --hbg:  rgba(255,255,255,.88);
+      --ov:   rgba(0,0,0,.4);
+    }
+    [data-theme="dark"] {
+      --pg:   #0f172a;
+      --pc:   #1e293b;
+      --pc2:  #0f172a;
+      --phov: #334155;
+      --bd:   #334155;
+      --bd2:  #475569;
+      --t1:   #f1f5f9;
+      --t2:   #e2e8f0;
+      --t3:   #94a3b8;
+      --tm:   #64748b;
+      --shw:  0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+      --shwm: 0 4px 16px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.2);
+      --shwl: 0 16px 48px rgba(0,0,0,.55),0 4px 12px rgba(0,0,0,.3);
+      --hbg:  rgba(15,23,42,.92);
+      --blue-50:  rgba(37,99,235,.12);
+      --blue-100: rgba(37,99,235,.22);
+      --ov: rgba(0,0,0,.6);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--pg); color: var(--t1);
+      min-height: 100vh; display: flex; flex-direction: column;
+      overflow-x: hidden; transition: background .3s, color .3s;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 4px; }
+
+    /* ── PAGE LOADER ── */
+    #page-loader {
+      position: fixed; inset: 0; background: var(--pc);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity .3s;
+    }
+    .ld-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .ld-icon {
+      width: 54px; height: 54px; background: var(--blue); border-radius: 15px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.45rem; color: #fff;
+      box-shadow: 0 8px 28px rgba(37,99,235,.35);
+      animation: ldPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes ldPulse {
+      0%,100% { transform: scale(1); box-shadow: 0 8px 28px rgba(37,99,235,.35); }
+      50% { transform: scale(1.07); box-shadow: 0 12px 36px rgba(37,99,235,.5); }
+    }
+    .ld-spin {
+      width: 24px; height: 24px;
+      border: 2.5px solid var(--bd); border-top-color: var(--blue);
+      border-radius: 50%; animation: spin .75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; height: 64px;
+      background: var(--hbg); backdrop-filter: blur(16px) saturate(1.8);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8);
+      border-bottom: 1px solid var(--bd);
+      border-radius: 0 0 18px 18px;
+      z-index: 300;
+      display: flex; align-items: center; padding: 0 20px; gap: 10px;
+      transition: background .3s, border-color .3s;
+    }
+
+    /* Hamburger — ONLY on mobile */
+    .hamburger {
+      width: 38px; height: 38px; border: 1px solid var(--bd);
+      background: none; border-radius: 9px; cursor: pointer;
+      align-items: center; justify-content: center;
+      color: var(--t3); font-size: 1rem; transition: all .2s; flex-shrink: 0;
+      display: none;
+    }
+    .hamburger:hover { background: var(--phov); color: var(--t1); }
+    @media (max-width: 768px) { .hamburger { display: flex; } }
+
+    .header-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.125rem; font-weight: 800; color: var(--t1);
+      text-decoration: none; flex-shrink: 0; letter-spacing: -.02em;
+    }
+    .header-logo-icon {
+      width: 34px; height: 34px; background: var(--blue); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: .875rem;
+      box-shadow: 0 2px 10px rgba(37,99,235,.28);
+      transition: transform .2s;
+    }
+    .header-logo:hover .header-logo-icon { transform: rotate(-8deg) scale(1.05); }
+    .header-logo span { color: var(--blue); }
+
+    nav.desktop-nav { display: flex; align-items: center; gap: 1px; margin-left: 14px; }
+    nav.desktop-nav a {
+      padding: 7px 13px; border-radius: 8px; font-size: .875rem;
+      font-weight: 500; color: var(--t3); text-decoration: none;
+      transition: color .15s, background .15s; white-space: nowrap;
+    }
+    nav.desktop-nav a:hover { color: var(--blue); background: var(--blue-50); }
+    nav.desktop-nav a.active { color: var(--blue); background: var(--blue-50); }
+    @media (max-width: 768px) { nav.desktop-nav { display: none; } }
+
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px; border: 1px solid var(--bd);
+      background: none; border-radius: 9px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--t3); font-size: .875rem; transition: all .2s;
+    }
+    .icon-btn:hover { background: var(--phov); color: var(--t1); border-color: var(--bd2); }
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--blue-50); color: var(--blue);
+      border: 1px solid var(--blue-100);
+      padding: 5px 11px; border-radius: 20px;
+      font-size: .73rem; font-weight: 700; letter-spacing: .3px;
+      white-space: nowrap;
+    }
+    @media (max-width: 500px) { .header-badge { display: none; } }
+
+    /* ── MOBILE MENU — slides from behind header (z below header) ── */
+    #mob-overlay {
+      display: none; position: fixed; inset: 0;
+      background: var(--ov); z-index: 198;
+      animation: fadeIn .2s ease;
+    }
+    #mob-overlay.open { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    #mob-menu {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 199;                        /* below header (300) so header clips top */
+      padding-top: 64px;                   /* space for header */
+      background: var(--pc);
+      border-bottom: 1px solid var(--bd);
+      border-radius: 0 0 22px 22px;
+      box-shadow: var(--shwl);
+      transform: translateY(-100%);        /* fully above viewport */
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      max-height: 88vh; overflow-y: auto;
+    }
+    #mob-menu.open { transform: translateY(0); }
+
+    .mob-inner { padding: 14px 14px 20px; }
+    .mob-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);
+    }
+    .mob-logo {
+      display: flex; align-items: center; gap: 9px;
+      font-weight: 800; font-size: 1rem; color: var(--t1); text-decoration: none;
+    }
+    .mob-logo-icon {
+      width: 30px; height: 30px; background: var(--blue); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: .8rem;
+    }
+    .mob-close {
+      width: 30px; height: 30px; border: 1px solid var(--bd);
+      background: none; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--tm); font-size: .85rem; transition: all .15s;
+    }
+    .mob-close:hover { background: var(--phov); color: var(--t1); }
+    .mob-nav { display: flex; flex-direction: column; gap: 2px; }
+    .mob-nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      text-decoration: none; font-size: .9375rem; font-weight: 500;
+      color: var(--t2); transition: all .15s;
+    }
+    .mob-nav a i { width: 17px; text-align: center; color: var(--tm); transition: color .15s; }
+    .mob-nav a:hover, .mob-nav a.active { background: var(--blue-50); color: var(--blue); }
+    .mob-nav a:hover i, .mob-nav a.active i { color: var(--blue); }
+
+    /* ── MAIN ── */
+    main { flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 96px 20px 56px; }
+
+    /* ── HERO ── */
+    .hero { text-align: center; margin-bottom: 40px; }
+
+    .hero h1 {
+      font-size: clamp(1.9rem, 5.5vw, 2.8rem);
+      font-weight: 900; color: var(--t1); letter-spacing: -.03em;
+      line-height: 1.12; margin-bottom: 18px;
+    }
+    /* animated gradient on accent text */
+    .hero-accent {
+      display: inline-block;
+      background: linear-gradient(120deg, var(--blue) 0%, #7c3aed 40%, var(--blue) 80%);
+      background-size: 220% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 6s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 220% center; }
+    }
+    .hero-line1 { display: inline-block; }
+
+    .hero p {
+      color: var(--t3); font-size: 1.0625rem; line-height: 1.72;
+      max-width: 510px; margin: 0 auto;
+    }
+
+    /* ── DROPZONE ── */
+    .dropzone {
+      background: var(--pc); border: 2px dashed var(--bd);
+      border-radius: var(--r); padding: 52px 24px;
+      text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+      position: relative; box-shadow: var(--shw);
+    }
+    .dropzone:hover, .dropzone.drag-over {
+      border-color: var(--blue); background: var(--blue-50);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.08), var(--shwm);
+    }
+    .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .dz-icon {
+      width: 62px; height: 62px; background: var(--blue-50); border: 1px solid var(--blue-100);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 1.5rem; color: var(--blue);
+      transition: transform .25s;
+    }
+    .dropzone:hover .dz-icon { transform: translateY(-3px) scale(1.06); }
+    .dz-title { font-size: 1.0625rem; font-weight: 700; color: var(--t1); margin-bottom: 6px; }
+    .dz-sub { color: var(--tm); font-size: .875rem; }
+    .dz-formats { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+    .fmt-tag {
+      background: var(--pc2); border: 1px solid var(--bd);
+      color: var(--t3); font-size: .7rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; letter-spacing: .4px;
+    }
+
+    /* ── PREVIEW GRID ── */
+    #preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 10px; margin-top: 18px; }
+    .preview-item {
+      position: relative; border-radius: 10px; overflow: hidden;
+      aspect-ratio: 1; background: var(--pc2); border: 1px solid var(--bd); box-shadow: var(--shw);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .preview-item:hover { transform: translateY(-2px); box-shadow: var(--shwm); }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-item .item-btns { position: absolute; top: 4px; right: 4px; display: flex; flex-direction: column; gap: 4px; }
+    .item-btn {
+      background: rgba(255,255,255,.92); border: 1px solid #e2e8f0;
+      color: #475569; border-radius: 7px; width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .68rem; transition: all .15s; backdrop-filter: blur(4px);
+    }
+    [data-theme="dark"] .item-btn { background: rgba(30,41,59,.92); border-color: #475569; color: #94a3b8; }
+    .item-btn:hover { background: var(--blue); border-color: var(--blue); color: #fff; transform: scale(1.1); }
+    .item-btn.danger:hover { background: var(--red); border-color: var(--red); color: #fff; }
+    .crop-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(37,99,235,.88); color: #fff;
+      font-size: .6rem; font-weight: 700; text-align: center;
+      padding: 3px; letter-spacing: .4px;
+    }
+    .preview-count {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 14px; color: var(--tm); font-size: .875rem;
+    }
+    .preview-count strong { color: var(--blue); }
+
+    /* ── ACTIONS ── */
+    .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 10px; border: none;
+      font-size: .9375rem; font-weight: 600; cursor: pointer;
+      transition: all .2s; font-family: inherit;
+    }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      box-shadow: 0 2px 8px rgba(37,99,235,.3);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--blue-h); transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37,99,235,.4);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-ghost {
+      background: var(--pc); border: 1px solid var(--bd); color: var(--t3);
+      box-shadow: var(--shw);
+    }
+    .btn-ghost:hover { border-color: var(--bd2); color: var(--t1); }
+
+    /* ── PROGRESS ── */
+    #progress-section {
+      display: none; background: var(--pc); border: 1px solid var(--bd);
+      border-radius: var(--r); padding: 20px; margin-top: 20px; box-shadow: var(--shw);
+    }
+    .progress-label { display: flex; justify-content: space-between; font-size: .875rem; color: var(--t3); margin-bottom: 10px; font-weight: 500; }
+    .progress-bar-wrap { background: var(--pc2); border-radius: 100px; height: 6px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), #60a5fa); border-radius: 100px; transition: width .4s ease; width: 0%; }
+
+    /* ── HOW IT WORKS ── */
+    .hiw-section { margin-top: 52px; padding-top: 36px; border-top: 1px solid var(--bd); }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--blue-50); border: 1px solid var(--blue-100); color: var(--blue);
+      padding: 4px 13px; border-radius: 20px; font-size: .73rem; font-weight: 700;
+      letter-spacing: .4px; margin-bottom: 12px;
+    }
+    .section-title { font-size: 1.25rem; font-weight: 800; color: var(--t1); margin-bottom: 6px; letter-spacing: -.02em; }
+    .section-sub { font-size: .9rem; color: var(--t3); margin-bottom: 24px; }
+    .hiw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .hiw-card {
+      background: var(--pc); border: 1px solid var(--bd);
+      border-radius: var(--r); padding: 22px 18px; box-shadow: var(--shw);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .hiw-card:hover { transform: translateY(-4px); box-shadow: var(--shwm); }
+    .hiw-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; font-size: 1.15rem;
+    }
+    .hiw-icon.blue  { background: var(--blue-50); border: 1px solid var(--blue-100); color: var(--blue); }
+    .hiw-icon.green { background: rgba(22,163,74,.08); border: 1px solid rgba(22,163,74,.2); color: var(--green); }
+    .hiw-icon.purp  { background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.2); color: #7c3aed; }
+    .hiw-num { font-size: .7rem; font-weight: 800; color: var(--tm); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+    .hiw-title { font-weight: 700; font-size: .9375rem; color: var(--t1); margin-bottom: 6px; }
+    .hiw-desc { font-size: .85rem; color: var(--t3); line-height: 1.65; }
+
+    /* ── RESULTS ── */
+    #results-section { margin-top: 36px; display: none; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .results-title { font-size: 1.05rem; font-weight: 800; color: var(--t1); display: flex; align-items: center; gap: 9px; }
+    .results-title i { color: var(--green); font-size: .95rem; }
+    .copy-all-btn {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px;
+      border-radius: 9px; border: 1px solid var(--bd); background: var(--pc);
+      color: var(--t3); font-size: .83rem; font-weight: 600;
+      cursor: pointer; transition: all .2s; box-shadow: var(--shw);
+    }
+    .copy-all-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-50); }
+    .copy-all-btn.copied { border-color: var(--green); color: var(--green); }
+
+    .result-card {
+      background: var(--pc); border: 1px solid var(--bd); border-radius: var(--r);
+      margin-bottom: 14px; overflow: hidden; box-shadow: var(--shw);
+      transition: box-shadow .2s;
+      animation: cardIn .35s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .result-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; border-bottom: 1px solid var(--bd);
+      background: var(--pc2); flex-wrap: wrap; gap: 8px;
+    }
+    .result-filename { display: flex; align-items: center; gap: 8px; font-size: .875rem; font-weight: 600; color: var(--t2); }
+    .result-filename i { color: var(--blue); }
+    .conf-badge { font-size: .7rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; margin-left: 6px; }
+    .c-h { background: rgba(22,163,74,.1); color: #16a34a; border: 1px solid rgba(22,163,74,.2); }
+    .c-m { background: rgba(202,138,4,.1); color: #b45309; border: 1px solid rgba(202,138,4,.2); }
+    .c-l { background: rgba(220,38,38,.1); color: #dc2626; border: 1px solid rgba(220,38,38,.2); }
+    .copy-one-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+      border-radius: 7px; border: 1px solid var(--bd); background: var(--pc);
+      color: var(--tm); font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .copy-one-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .copy-one-btn.copied { border-color: var(--green); color: var(--green); }
+    .result-text { padding: 18px; font-size: .9rem; line-height: 1.85; white-space: pre-wrap; color: var(--t2); max-height: 340px; overflow-y: auto; }
+    .result-text.empty { color: var(--tm); font-style: italic; }
+
+    /* ── CROP MODAL ── */
+    #crop-modal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: var(--ov); align-items: center; justify-content: center;
+      padding: 16px; backdrop-filter: blur(6px);
+    }
+    #crop-modal.open { display: flex; animation: fadeIn .2s; }
+    .crop-box {
+      background: var(--pc); border: 1px solid var(--bd); border-radius: 18px;
+      width: 100%; max-width: 700px; display: flex; flex-direction: column;
+      max-height: 94vh; overflow: hidden; box-shadow: var(--shwl);
+      animation: modalIn .25s cubic-bezier(.16,1,.3,1);
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(.96) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .crop-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--bd);
+    }
+    .crop-title { font-size: .975rem; font-weight: 700; color: var(--t1); display: flex; align-items: center; gap: 9px; }
+    .crop-title i { color: var(--blue); }
+    .crop-canvas { overflow: hidden; background: #000; height: 56vh; min-height: 260px; }
+    .crop-canvas img { display: block; max-width: 100%; }
+    .crop-toolbar {
+      display: flex; gap: 8px; padding: 12px 16px;
+      border-top: 1px solid var(--bd); flex-wrap: wrap; background: var(--pc2);
+    }
+    .crop-tool {
+      background: var(--pc); border: 1px solid var(--bd); color: var(--t2);
+      padding: 7px 13px; border-radius: 8px; font-size: .8rem; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all .15s; font-family: inherit;
+    }
+    .crop-tool:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-50); }
+    .crop-footer {
+      display: flex; gap: 10px; padding: 14px 18px;
+      border-top: 1px solid var(--bd); justify-content: flex-end; background: var(--pc);
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--t1); color: var(--pc);
+      padding: 11px 18px; border-radius: 10px; font-size: .875rem;
+      font-weight: 600; display: flex; align-items: center; gap: 9px;
+      opacity: 0; transform: translateY(10px) scale(.96);
+      transition: all .25s cubic-bezier(.16,1,.3,1);
+      pointer-events: none; z-index: 9000; box-shadow: var(--shwl);
+    }
+    #toast.show { opacity: 1; transform: translateY(0) scale(1); }
+    #toast i { color: #4ade80; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--bd); background: var(--pc);
+      border-radius: 18px 18px 0 0;
+      padding: 24px; text-align: center;
+      transition: background .3s, border-color .3s;
+    }
+    .ft { font-size: .82rem; color: var(--tm); line-height: 1.7; }
+    .ft a { color: var(--blue); text-decoration: none; font-weight: 500; }
+    .ft a:hover { text-decoration: underline; }
+    .heart { display: inline-block; color: var(--red); animation: hb 1.3s ease-in-out infinite; }
+    @keyframes hb {
+      0%,100% { transform: scale(1); }
+      14% { transform: scale(1.4); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.2); }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 86px 14px 44px; }
+      .hero h1 { font-size: 1.65rem; }
+    }
+    @media (max-width: 440px) { .gh-label { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <div class="ld-inner">
+    <div class="ld-icon"><i class="fas fa-file-image"></i></div>
+    <div class="ld-spin"></div>
+  </div>
+</div>
+
+<!-- MOBILE OVERLAY -->
+<div id="mob-overlay" onclick="closeMob()"></div>
+
+<!-- MOBILE MENU (slides from top, sits BEHIND header) -->
+<div id="mob-menu">
+  <div class="mob-inner">
+    <div class="mob-top">
+      <a class="mob-logo" href="/">
+        <div class="mob-logo-icon"><i class="fas fa-file-image"></i></div>
+        Text<span style="color:var(--blue)">Scan</span>
+      </a>
+      <button class="mob-close icon-btn" onclick="closeMob()"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="mob-nav">
+      <a href="/" class="active" onclick="closeMob()"><i class="fas fa-house"></i> Home</a>
+      <a href="#how-it-works" onclick="closeMob()"><i class="fas fa-wand-magic-sparkles"></i> How It Works</a>
+      <a href="/history" onclick="closeMob()"><i class="fas fa-clock-rotate-left"></i> History</a>
+      <a href="https://me.giftedtech.co.ke" target="_blank"><i class="fas fa-globe"></i> GiftedTech</a>
+      <a href="mailto:maurice@giftedtech.co.ke"><i class="fas fa-envelope"></i> Contact</a>
+    </nav>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <button class="hamburger" onclick="openMob()" aria-label="Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <a class="header-logo" href="/">
+    <div class="header-logo-icon"><i class="fas fa-file-image"></i></div>
+    Text<span>Scan</span>
+  </a>
+  <nav class="desktop-nav">
+    <a href="/" class="active">Home</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="/history">History</a>
+    <a href="https://me.giftedtech.co.ke" target="_blank">GiftedTech</a>
+  </nav>
+  <div class="header-right">
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+      <i id="themeIcon" class="fas fa-moon"></i>
+    </button>
+    <a class="icon-btn" href="https://github.com/mauricegift/text-scan" target="_blank" title="View on GitHub" style="text-decoration:none;width:auto;padding:0 12px;gap:6px;font-size:.78rem;font-weight:700;color:var(--t2);">
+      <i class="fab fa-github" style="font-size:1rem;"></i>
+      <span class="gh-label">GitHub</span>
+    </a>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>
+      <span class="hero-line1" data-aos="fade-up" data-aos-delay="300">Extract Text from</span><br>
+      <span class="hero-accent" data-aos="fade-up" data-aos-delay="550">Any Image</span>
+    </h1>
+    <p data-aos="fade-up" data-aos-delay="800">
+      Upload images, crop to the exact region you need, then extract all text instantly. Supports handwriting, printed text, screenshots and more.
+    </p>
+  </div>
+
+  <!-- DROPZONE -->
+  <div data-aos="fade-up" data-aos-delay="1050">
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" multiple accept="image/*"/>
+      <div class="dz-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+      <div class="dz-title">Drop images here or click to browse</div>
+      <div class="dz-sub">Up to 20 files &middot; 20 MB each &middot; Crop &amp; rotate support</div>
+      <div class="dz-formats">
+        <span class="fmt-tag">JPG</span><span class="fmt-tag">PNG</span>
+        <span class="fmt-tag">BMP</span><span class="fmt-tag">WEBP</span>
+        <span class="fmt-tag">GIF</span><span class="fmt-tag">TIFF</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview-grid"></div>
+
+  <div id="preview-info" style="display:none;" class="preview-count">
+    <i class="fas fa-images" style="color:var(--blue)"></i>
+    <strong id="img-count">0</strong> image(s) ready
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:.8rem;margin-left:auto;" onclick="clearAll()">
+      <i class="fas fa-trash"></i> Clear all
+    </button>
+  </div>
+
+  <div class="actions" data-aos="fade-up" data-aos-delay="0">
+    <button class="btn btn-primary" id="extractBtn" onclick="extractText()" disabled>
+      <i class="fas fa-magnifying-glass"></i> Extract Text
+    </button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="progress-section">
+    <div class="progress-label">
+      <span id="progress-text">Processing images...</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  </div>
+
+  <!-- RESULTS (appears above How It Works) -->
+  <div id="results-section">
+    <div class="results-header">
+      <div class="results-title"><i class="fas fa-check-circle"></i> Extracted Text</div>
+      <button class="copy-all-btn" id="copyAllBtn" onclick="copyAll()">
+        <i class="fas fa-copy"></i> Copy All
+      </button>
+    </div>
+    <div id="results-container"></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="hiw-section" id="how-it-works">
+    <div data-aos="fade-up">
+      <div class="section-label"><i class="fas fa-circle-info"></i> Guide</div>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">Three simple steps to extract text from any image.</p>
+    </div>
+    <div class="hiw-grid">
+      <div class="hiw-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="hiw-icon blue"><i class="fas fa-upload"></i></div>
+        <div class="hiw-num">Step 01</div>
+        <div class="hiw-title">Upload Images</div>
+        <div class="hiw-desc">Drag and drop or click to browse. Select up to 20 images at once in any format.</div>
+      </div>
+      <div class="hiw-card" data-aos="fade-up" data-aos-delay="180">
+        <div class="hiw-icon green"><i class="fas fa-crop-simple"></i></div>
+        <div class="hiw-num">Step 02</div>
+        <div class="hiw-title">Crop &amp; Rotate</div>
+        <div class="hiw-desc">Optionally crop each image to focus on just the text area. Rotate if needed.</div>
+      </div>
+      <div class="hiw-card" data-aos="fade-up" data-aos-delay="360">
+        <div class="hiw-icon purp"><i class="fas fa-wand-magic-sparkles"></i></div>
+        <div class="hiw-num">Step 03</div>
+        <div class="hiw-title">Extract &amp; Copy</div>
+        <div class="hiw-desc">Gemini Vision AI reads all text. Copy individual results or all at once.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p class="ft">
+    &copy; <span id="yr"></span>
+    <a href="https://me.giftedtech.co.ke" target="_blank">GiftedTech</a>
+    &nbsp;&middot;&nbsp; Made with <span class="heart">&#9829;</span> in Kenya
+  </p>
+</footer>
+
+<!-- CROP MODAL -->
+<div id="crop-modal">
+  <div class="crop-box">
+    <div class="crop-header">
+      <span class="crop-title"><i class="fas fa-crop-simple"></i> Crop Image</span>
+      <button class="icon-btn" onclick="closeCrop()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="crop-canvas">
+      <img id="crop-image" src="" alt="crop target"/>
+    </div>
+    <div class="crop-toolbar">
+      <button class="crop-tool" onclick="cropper.rotate(-90)"><i class="fas fa-rotate-left"></i> Rotate L</button>
+      <button class="crop-tool" onclick="cropper.rotate(90)"><i class="fas fa-rotate-right"></i> Rotate R</button>
+      <button class="crop-tool" onclick="cropper.reset()"><i class="fas fa-arrows-rotate"></i> Reset</button>
+      <button class="crop-tool" onclick="cropper.setAspectRatio(NaN)"><i class="fas fa-expand"></i> Free</button>
+      <button class="crop-tool" onclick="cropper.setAspectRatio(1)"><i class="fas fa-square"></i> Square</button>
+    </div>
+    <div class="crop-footer">
+      <button class="btn btn-ghost" onclick="closeCrop()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyCrop()"><i class="fas fa-check"></i> Apply Crop</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><i class="fas fa-check"></i> <span id="toast-msg">Copied!</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  /* ── Init ── */
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  AOS.init({ once: false, mirror: true, duration: 950, easing: 'cubic-bezier(0.16,1,0.3,1)', offset: 60 });
+
+  /* ── Page loader ── */
+  window.addEventListener('load', () => {
+    const l = document.getElementById('page-loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.remove(), 320);
+  });
+
+  /* ── Theme ── */
+  const htmlEl = document.documentElement;
+  const themeIcon = document.getElementById('themeIcon');
+
+  function applyTheme(t) {
+    htmlEl.setAttribute('data-theme', t);
+    themeIcon.className = t === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    localStorage.setItem('ts-theme', t);
+  }
+  function toggleTheme() {
+    applyTheme(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  }
+  applyTheme(localStorage.getItem('ts-theme') || 'light');
+
+  /* ── Mobile menu ── */
+  let scrollY = 0;
+
+  function openMob() {
+    scrollY = window.scrollY;
+    document.getElementById('mob-menu').classList.add('open');
+    document.getElementById('mob-overlay').classList.add('open');
+    // Freeze body scroll (iOS-safe)
+    document.body.style.cssText = `overflow:hidden;position:fixed;top:-${scrollY}px;left:0;right:0;`;
+  }
+  function closeMob() {
+    document.getElementById('mob-menu').classList.remove('open');
+    document.getElementById('mob-overlay').classList.remove('open');
+    // Restore scroll position
+    document.body.style.cssText = '';
+    window.scrollTo(0, scrollY);
+  }
+
+  /* ── File handling ── */
+  let selectedFiles = [];
+  let cropper = null;
+  let cropIdx = -1;
+
+  const fileInput   = document.getElementById('fileInput');
+  const dropzone    = document.getElementById('dropzone');
+  const previewGrid = document.getElementById('preview-grid');
+  const previewInfo = document.getElementById('preview-info');
+  const imgCount    = document.getElementById('img-count');
+  const extractBtn  = document.getElementById('extractBtn');
+  const cropModal   = document.getElementById('crop-modal');
+  const cropImg     = document.getElementById('crop-image');
+
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('drag-over'); handleFiles([...e.dataTransfer.files]); });
+  fileInput.addEventListener('change', () => { handleFiles([...fileInput.files]); fileInput.value = ''; });
+
+  /* Read a single File as a base64 data URL (returns a Promise). */
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload  = e => resolve(e.target.result);
+      r.onerror = () => reject(new Error('FileReader error'));
+      r.readAsDataURL(file);
+    });
+  }
+
+  /* Add new files — pre-generate thumbnails via FileReader before rendering.
+     This avoids URL.createObjectURL which is unreliable on iOS for multi-select. */
+  async function handleFiles(files) {
+    const imgs  = files.filter(f => f.type.startsWith('image/'));
+    const slots = 20 - selectedFiles.length;
+    if (slots <= 0 || !imgs.length) return;
+    const toAdd = imgs.slice(0, slots);
+
+    // Read all thumbnails in parallel before touching the DOM
+    await Promise.all(toAdd.map(async f => {
+      try { f._preview = await readFileAsDataURL(f); }
+      catch (_) { f._preview = ''; }
+    }));
+
+    selectedFiles = [...selectedFiles, ...toAdd];
+    renderPreviews();
+  }
+
+  /* Render preview grid — uses pre-cached base64 data URLs only (no blob URLs). */
+  function renderPreviews() {
+    previewGrid.innerHTML = '';
+    if (!selectedFiles.length) {
+      previewInfo.style.display = 'none';
+      extractBtn.disabled = true;
+      return;
+    }
+    previewInfo.style.display = 'flex';
+    imgCount.textContent = selectedFiles.length;
+    extractBtn.disabled = false;
+    selectedFiles.forEach((file, i) => {
+      const el = document.createElement('div');
+      el.className = 'preview-item';
+      el.style.animation = `cardIn .3s cubic-bezier(.16,1,.3,1) ${i * 40}ms both`;
+      el.innerHTML = `
+        <img src="${file._preview || ''}" alt="${esc(file.name)}"/>
+        <div class="item-btns">
+          <button class="item-btn" onclick="openCrop(${i})" title="Crop"><i class="fas fa-crop-simple"></i></button>
+          <button class="item-btn danger" onclick="removeFile(${i})" title="Remove"><i class="fas fa-times"></i></button>
+        </div>
+        ${file._cropped ? '<div class="crop-label"><i class="fas fa-crop-simple"></i> Cropped</div>' : ''}
+      `;
+      previewGrid.appendChild(el);
+    });
+  }
+
+  function removeFile(i) { selectedFiles.splice(i, 1); renderPreviews(); }
+  function clearAll() {
+    selectedFiles = [];
+    renderPreviews();
+    document.getElementById('results-section').style.display = 'none';
+    document.getElementById('progress-section').style.display = 'none';
+  }
+
+  /* ── Crop — always uses the cached _preview data URL, never creates a new reader ── */
+  function openCrop(idx) {
+    cropIdx = idx;
+    if (cropper) { cropper.destroy(); cropper = null; }
+    cropImg.onload = null;
+    cropImg.src = '';
+    cropModal.classList.add('open');
+
+    function initCropper() {
+      if (cropper) return;
+      cropper = new Cropper(cropImg, {
+        viewMode: 1, autoCropArea: 0.9, responsive: true,
+        checkCrossOrigin: false, checkOrientation: true,
+        minContainerHeight: 260, toggleDragModeOnDblclick: false,
+      });
+    }
+
+    const preview = selectedFiles[idx]._preview;
+    if (!preview) { toast('Could not load image for cropping'); return; }
+
+    if (cropImg.complete && cropImg.naturalWidth && cropImg.src === preview) {
+      initCropper();
+    } else {
+      cropImg.onload = initCropper;
+      cropImg.src = preview;
+      // Fallback: if onload already fired (cached)
+      setTimeout(() => { if (!cropper && cropImg.complete && cropImg.naturalWidth) initCropper(); }, 400);
+    }
+  }
+
+  function closeCrop() {
+    cropModal.classList.remove('open');
+    if (cropper) { cropper.destroy(); cropper = null; }
+    cropIdx = -1;
+  }
+
+  /* Apply crop — read the cropped blob into base64 before updating the preview. */
+  function applyCrop() {
+    if (!cropper || cropIdx < 0) return;
+    cropper.getCroppedCanvas({ maxWidth: 2048, maxHeight: 2048, imageSmoothingQuality: 'high' })
+      .toBlob(async blob => {
+        const orig = selectedFiles[cropIdx];
+        const f = new File([blob], orig.name, { type: 'image/jpeg' });
+        f._cropped = true;
+        try { f._preview = await readFileAsDataURL(f); } catch (_) { f._preview = orig._preview; }
+        selectedFiles[cropIdx] = f;
+        closeCrop();
+        renderPreviews();
+        toast('Crop applied!');
+      }, 'image/jpeg', 0.92);
+  }
+
+  cropModal.addEventListener('click', e => { if (e.target === cropModal) closeCrop(); });
+
+  /* ── Extract ── */
+  async function extractText() {
+    if (!selectedFiles.length) return;
+    const ps    = document.getElementById('progress-section');
+    const rs    = document.getElementById('results-section');
+    const bar   = document.getElementById('progress-bar');
+    const ptxt  = document.getElementById('progress-text');
+    const ppct  = document.getElementById('progress-pct');
+    const rc    = document.getElementById('results-container');
+
+    extractBtn.disabled = true;
+    ps.style.display = 'block';
+    rs.style.display = 'none';
+    rc.innerHTML = '';
+    bar.style.width = '0%'; bar.style.background = '';
+    ppct.textContent = '0%';
+    ptxt.textContent = `Processing ${selectedFiles.length} image(s)…`;
+
+    const fd = new FormData();
+    selectedFiles.forEach(f => fd.append('images', f));
+
+    let fake = 0;
+    const tick = setInterval(() => {
+      if (fake < 85) { fake += Math.random() * 3; bar.style.width = fake + '%'; ppct.textContent = Math.round(fake) + '%'; }
+    }, 380);
+
+    try {
+      const res = await fetch('/extract', { method: 'POST', body: fd });
+      clearInterval(tick);
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Server error'); }
+      bar.style.width = '100%'; ppct.textContent = '100%'; ptxt.textContent = 'Done!';
+      const data = await res.json();
+      setTimeout(() => {
+        ps.style.display = 'none';
+        renderResults(data.results);
+        saveToHistory(data.results);
+        rs.style.display = 'block';
+        extractBtn.disabled = false;
+        rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 450);
+    } catch (err) {
+      clearInterval(tick);
+      ptxt.textContent = 'Error: ' + err.message;
+      bar.style.background = 'var(--red)'; bar.style.width = '100%';
+      extractBtn.disabled = false;
+    }
+  }
+
+  function renderResults(results) {
+    const rc = document.getElementById('results-container');
+    rc.innerHTML = '';
+    results.forEach((r, i) => {
+      const text = r.success && r.text ? r.text : '';
+      const conf = r.confidence || 0;
+      const cc = conf >= 75 ? 'c-h' : conf >= 45 ? 'c-m' : 'c-l';
+      const cl = conf >= 75 ? 'High' : conf >= 45 ? 'Medium' : 'Low';
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.style.animationDelay = (i * 60) + 'ms';
+      card.innerHTML = `
+        <div class="result-card-header">
+          <div class="result-filename">
+            <i class="fas fa-image"></i> ${esc(r.name)}
+            ${r.success ? `<span class="conf-badge ${cc}">${conf}% &middot; ${cl}</span>` : ''}
+          </div>
+          <button class="copy-one-btn" onclick="copyOne(this,${i})" ${!text ? 'disabled' : ''}>
+            <i class="fas fa-copy"></i> Copy
+          </button>
+        </div>
+        <div class="result-text ${!text ? 'empty' : ''}" id="text-${i}">${text ? esc(text) : 'No text detected in this image.'}</div>
+      `;
+      rc.appendChild(card);
+    });
+  }
+
+  function copyOne(btn, idx) {
+    const el = document.getElementById('text-' + idx);
+    clip(el.innerText, () => {
+      btn.classList.add('copied'); btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2500);
+    });
+  }
+
+  function copyAll() {
+    const texts = [...document.querySelectorAll('.result-text:not(.empty)')].map(c => c.innerText).join('\n\n---\n\n');
+    clip(texts, () => {
+      const btn = document.getElementById('copyAllBtn');
+      btn.classList.add('copied'); btn.innerHTML = '<i class="fas fa-check"></i> Copied All!';
+      setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="fas fa-copy"></i> Copy All'; }, 3000);
+    });
+  }
+
+  function clip(text, cb) {
+    toast('Copied to clipboard!');
+    if (navigator.clipboard?.writeText) { navigator.clipboard.writeText(text).then(cb).catch(() => clipFb(text, cb)); }
+    else clipFb(text, cb);
+  }
+
+  function clipFb(text, cb) {
+    const ta = Object.assign(document.createElement('textarea'), { value: text });
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); cb(); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  /* ── History ── */
+  function saveToHistory(results) {
+    const MAX = 50;
+    const entry = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      results: results.map(r => ({ name: r.name, text: r.text || '', success: r.success }))
+    };
+    try {
+      const hist = JSON.parse(localStorage.getItem('ts-history') || '[]');
+      hist.unshift(entry);
+      if (hist.length > MAX) hist.splice(MAX);
+      localStorage.setItem('ts-history', JSON.stringify(hist));
+    } catch (_) {}
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
