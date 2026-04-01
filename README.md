@@ -65,7 +65,7 @@ textscan/
 
 ## Quick Start
 
-1. Fork / import this repo into Replit.
+1. Fork /import/clone this repo.
 2. Open the **Secrets** panel and add:
 
    | Secret | Value |
